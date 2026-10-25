@@ -198,13 +198,8 @@ class WebhookRunner {
   remove(webhook: Webhook) {
     debug(`Unregistering webhook '${webhook.id}'`);
 
-    getEvents(webhook).forEach((event) => {
-      const webhooks = this.webhooksMap.get(event);
-
-      if (!webhooks) {
-        return;
-      }
-
+    // The webhook may have been registered for events it no longer lists, so every event is checked
+    [...this.webhooksMap].forEach(([event, webhooks]) => {
       const filteredWebhooks = webhooks.filter((value) => value.id !== webhook.id);
 
       // Cleanup hanging listeners
