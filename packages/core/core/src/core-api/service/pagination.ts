@@ -39,20 +39,8 @@ const getLimitConfigDefaults = () => ({
 const isOffsetPagination = (pagination?: PaginationParams): pagination is OffsetPagination =>
   has(pagination, 'start') || has(pagination, 'limit');
 
-type PaginationMode = 'page' | 'offset';
-
-const getPaginationMode = (pagination?: PaginationParams): PaginationMode => {
-  if (isOffsetPagination(pagination)) {
-    return 'offset';
-  }
-
-  const keys = Object.keys(pagination ?? {});
-
-  return keys.includes('page') || keys.includes('pageSize') ? 'page' : 'offset';
-};
-
 const isPagedPagination = (pagination?: PaginationParams): pagination is PagedPagination =>
-  getPaginationMode(pagination) === 'page';
+  !isOffsetPagination(pagination);
 
 const shouldCount = (params: { pagination?: PaginationParams }) => {
   if (has(params, 'pagination.withCount')) {
