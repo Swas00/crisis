@@ -1,6 +1,6 @@
 import type { Context } from 'koa';
 
-import { addHours, isBefore, parseISO } from 'date-fns';
+import { isBefore, parseISO, subHours } from 'date-fns';
 import { errors } from '@strapi/utils';
 
 const { UnauthorizedError } = errors;
@@ -41,12 +41,11 @@ export const updateLastUsedAt = async (apiToken: {
   const currentDate = new Date();
   const lastUsedAt = apiToken.lastUsedAt != null ? parseISO(apiToken.lastUsedAt) : null;
 
-  // The timestamp is refreshed at most once an hour: the next write falls due
-  // an hour from this request, so a timestamp sitting before it still belongs
-  // to the window that is running.
-  const refreshDueAt = addHours(currentDate, LAST_USED_REFRESH_INTERVAL_IN_HOURS);
+  // The timestamp is refreshed at most once an hour: a timestamp younger than
+  // the refresh interval still belongs to the window that is running.
+  const refreshDueAt = subHours(currentDate, LAST_USED_REFRESH_INTERVAL_IN_HOURS);
 
-  if (lastUsedAt !== null && isBefore(lastUsedAt, refreshDueAt)) {
+  if (lastUsedAt !== null && !isBefore(lastUsedAt, refreshDueAt)) {
     return;
   }
 
