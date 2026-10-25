@@ -271,12 +271,11 @@ export default ({ strapi }: { strapi: Core.Strapi }) => {
         strapi.config.get<Config>('plugin::upload').concurrentUploadSize ?? 1
       );
 
-      const fileBatches = _.chunk(fileArray, concurrentUploadSize);
+      const uploads = fileArray.map((file, index) => ({ file, info: fileInfoArray[index] || {} }));
+      const fileBatches = _.chunk(uploads, concurrentUploadSize);
 
       for (const batch of fileBatches) {
-        const results = await Promise.all(
-          batch.map((file, index) => doUpload(file, fileInfoArray[index] || {}))
-        );
+        const results = await Promise.all(batch.map(({ file, info }) => doUpload(file, info)));
         uploadedFiles.push(...results);
       }
     } finally {
