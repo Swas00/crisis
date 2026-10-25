@@ -15,20 +15,6 @@ const EVENTS = {
 type EventName = Utils.Object.Values<typeof EVENTS>;
 
 /**
- * Model names used in event payloads. Schemas are rebuilt on every reload, so they are
- * resolved once per content type instead of being read from the schema on every event.
- */
-const modelNames = new Map<string, string>();
-
-const registerModelName = (model: { uid: string; modelName?: string }) => {
-  if (typeof model.modelName === 'string' && !modelNames.has(model.modelName)) {
-    modelNames.set(model.modelName, model.modelName);
-  }
-};
-
-const getModelName = (uid: string) => modelNames.get(uid) ?? uid;
-
-/**
  * Manager to trigger entry related events
  *
  * It will populate the entry if it is not a delete event.
@@ -36,8 +22,6 @@ const getModelName = (uid: string) => modelNames.get(uid) ?? uid;
  */
 const createEventManager = (strapi: Core.Strapi, uid: UID.Schema) => {
   const model = strapi.getModel(uid);
-
-  registerModelName(model);
 
   const populate = getDeepPopulate(uid, {});
 
@@ -63,7 +47,7 @@ const createEventManager = (strapi: Core.Strapi, uid: UID.Schema) => {
     );
 
     await strapi.eventHub.emit(eventName, {
-      model: getModelName(model.uid),
+      model: model.modelName,
       uid: model.uid,
       entry: sanitizedEntry,
     });
