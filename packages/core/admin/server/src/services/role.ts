@@ -146,7 +146,9 @@ const update = async (params: any, attributes: Partial<AdminRole>): Promise<Admi
 
     // The role being updated already holds its own name; only another role
     // holding it is a conflict.
-    const alreadyExists = rolesWithSameName.some((role) => role.id !== params.id);
+    const alreadyExists = rolesWithSameName.some(
+      (role) => _.toString(role.id) !== _.toString(params.id)
+    );
 
     if (alreadyExists) {
       throw new ApplicationError(
