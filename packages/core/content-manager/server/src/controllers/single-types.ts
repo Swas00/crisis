@@ -38,10 +38,6 @@ const createOrUpdateDocument = async (ctx: any, opts?: OptionsWithPopulate) => {
   const documentManager = getService('document-manager');
   const permissionChecker = getService('permission-checker').create({ userAbility, model });
 
-  if (permissionChecker.cannot.create()) {
-    throw new errors.ForbiddenError();
-  }
-
   const sanitizedQuery = await permissionChecker.sanitizedQuery.update(query);
 
   const { locale } = await getDocumentLocaleAndStatus(body, model);
