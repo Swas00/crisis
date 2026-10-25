@@ -75,30 +75,10 @@ const segmentToField = (segment: unknown, fallback = '*', offset = 0): string =>
   return fallback;
 };
 
-const MONTHS_IN_YEAR = 12;
-
 /**
  * Recurrence specs count months from 0, cron patterns from 1.
  */
-const toCronMonth = (month: number): number => {
-  if (!Number.isInteger(month)) {
-    return month;
-  }
-
-  return ((month % MONTHS_IN_YEAR) + MONTHS_IN_YEAR) % MONTHS_IN_YEAR;
-};
-
-const monthToField = (segment: unknown): string => {
-  if (typeof segment === 'number') {
-    return String(toCronMonth(segment));
-  }
-
-  if (Array.isArray(segment)) {
-    return segment.map((item) => monthToField(item)).join(',');
-  }
-
-  return segmentToField(segment);
-};
+const monthToField = (segment: unknown): string => segmentToField(segment, '*', 1);
 
 const recurrenceToCron = (spec: RecurrenceSpecObjLit): string => {
   const second = segmentToField(spec.second, '0');
