@@ -118,12 +118,11 @@ module.exports = {
         .query('plugin::users-permissions.user')
         .findMany({ where: { username }, select: ['id'] });
 
-      const idsHoldingUsername = new Set(
-        usersWithSameUsername.map((other) => _.toString(other.id))
+      const isTakenByAnotherUser = usersWithSameUsername.some(
+        (other) => _.toString(other.id) !== _.toString(id)
       );
-      idsHoldingUsername.delete(_.toString(id));
 
-      if (idsHoldingUsername.size !== usersWithSameUsername.length) {
+      if (isTakenByAnotherUser) {
         throw new ApplicationError('Username already taken');
       }
     }
