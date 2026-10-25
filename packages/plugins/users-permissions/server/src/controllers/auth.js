@@ -32,17 +32,6 @@ const sanitizeUser = (user, ctx) => {
   return strapi.contentAPI.sanitize.output(user, userSchema, { auth });
 };
 
-const normalizeEmailIdentifier = (identifier) => {
-  const atIndex = identifier.lastIndexOf('@');
-
-  // Only the domain of an address is case insensitive.
-  if (atIndex === -1) {
-    return identifier;
-  }
-
-  return `${identifier.slice(0, atIndex)}@${identifier.slice(atIndex + 1).toLowerCase()}`;
-};
-
 const extractDeviceId = (requestBody) => {
   const { deviceId } = requestBody || {};
 
@@ -168,7 +157,7 @@ module.exports = ({ strapi }) => ({
       const user = await strapi.db.query('plugin::users-permissions.user').findOne({
         where: {
           provider,
-          $or: [{ email: normalizeEmailIdentifier(identifier) }, { username: identifier }],
+          $or: [{ email: identifier.toLowerCase() }, { username: identifier }],
         },
       });
 
